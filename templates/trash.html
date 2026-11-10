@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Baru Dihapus{% endblock %}
+{% block content %}
+<div class="ms-narrow ms-wide">
+  <a href="{{ url_for('notes.index') }}" class="ms-back"><i data-lucide="arrow-left"></i> Kembali</a>
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+    <h1 class="ms-title mb-0">Baru Dihapus</h1>
+    {% if notes %}
+      <form method="post" action="{{ url_for('notes.empty_trash') }}" data-confirm="Hapus permanen semua catatan di sini? Tindakan ini tidak bisa dibatalkan.">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-ms-ghost ms-danger-text" type="submit"><i data-lucide="flame"></i> Kosongkan</button>
+      </form>
+    {% endif %}
+  </div>
+  <p class="text-muted mb-4">Catatan di sini dihapus permanen otomatis setelah {{ retention }} hari.</p>
+
+  {% if not notes %}
+    <div class="ms-empty">
+      <div class="ms-icon-bubble mx-auto mb-3"><i data-lucide="trash-2"></i></div>
+      <h2 class="h5 fw-semibold">Tidak ada catatan yang dihapus</h2>
+      <p class="text-muted mb-0">Catatan yang kamu hapus akan muncul di sini sebelum dihapus permanen.</p>
+    </div>
+  {% else %}
+    <ul class="ms-trash-list">
+      {% for n in notes %}
+        <li class="ms-trash-item">
+          <div class="min-w-0">
+            <h2 class="h6 fw-semibold mb-1 text-truncate">{{ n.title }}</h2>
+            <p class="text-muted small mb-1">{{ (n.content or '')|snippet(110) or 'Tanpa isi.' }}</p>
+            <span class="ms-tag ms-tag-warn">Dihapus {{ n.deleted_at|tgl_pendek }} · tersisa {{ days_left(n) }} hari</span>
+          </div>
+          <div class="d-flex gap-2 flex-shrink-0">
+            <form method="post" action="{{ url_for('notes.restore', note_id=n.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-ms btn-sm" type="submit"><i data-lucide="undo-2"></i> Pulihkan</button>
+            </form>
+            <form method="post" action="{{ url_for('notes.purge', note_id=n.id) }}" data-confirm="Hapus “{{ n.title }}” secara permanen?">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-ms-ghost btn-sm ms-danger-text" type="submit" aria-label="Hapus permanen"><i data-lucide="trash-2"></i></button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+{% endblock %}

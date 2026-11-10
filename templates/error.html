@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="ms-empty mt-5">
+  <p class="ms-error-code">{{ status }}</p>
+  <h1 class="h4 fw-semibold">{{ title }}</h1>
+  <p class="text-muted">{{ message }}</p>
+  <a href="{{ url_for('notes.index') }}" class="btn btn-ms">Kembali ke beranda</a>
+</div>
+{% endblock %}

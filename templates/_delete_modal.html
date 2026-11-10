@@ -1,0 +1,17 @@
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content ms-modal-content" method="post" id="deleteForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="modal-body text-center p-4">
+        <div class="ms-icon-bubble ms-icon-danger mx-auto mb-3"><i data-lucide="trash-2"></i></div>
+        <h2 class="h5 fw-semibold" id="deleteModalTitle">Hapus catatan ini?</h2>
+        <p class="text-muted mb-1">“<span id="deleteNoteTitle" class="fw-medium text-body"></span>”</p>
+        <p class="text-muted small mb-4">Catatan akan dipindahkan ke <em>Baru Dihapus</em> dan bisa dipulihkan dalam {{ config.TRASH_RETENTION_DAYS }} hari.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button type="button" class="btn btn-ms-ghost" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-ms-danger">Hapus</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

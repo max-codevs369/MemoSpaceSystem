@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Catatan Baru{% endblock %}
+{% block content %}
+<div class="ms-narrow">
+  <a href="{{ url_for('notes.index') }}" class="ms-back"><i data-lucide="arrow-left"></i> Kembali</a>
+  <h1 class="ms-title mb-4">Catatan baru</h1>
+  <div class="ms-draft-banner d-none" id="draftBanner">
+    <span><i data-lucide="history"></i> Ada draf yang belum tersimpan dari sesi sebelumnya.</span>
+    <span class="d-flex gap-2">
+      <button type="button" class="ms-link" id="draftRestore">Pulihkan</button>
+      <button type="button" class="ms-link ms-link-muted" id="draftDiscard">Buang</button>
+    </span>
+  </div>
+  {% set action = url_for('notes.create') %}
+  {% set cancel_url = url_for('notes.index') %}
+  {% set submit_label = 'Simpan' %}
+  {% set autosave_url = none %}
+  {% set draft_key = 'memospace:draft:new' %}
+  {% include "_note_form.html" %}
+</div>
+{% endblock %}

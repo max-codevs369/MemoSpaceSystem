@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Selamat Datang{% endblock %}
+{% block body_class %}ms-onboarding{% endblock %}
+{% block nav %}{% endblock %}
+{% block main_class %}ms-stage{% endblock %}
+
+{% block content %}
+<div class="ms-orb ms-orb-1"></div><div class="ms-orb ms-orb-2"></div>
+<div class="ms-brand-top"><span class="ms-logo-mark"><i data-lucide="notebook-pen"></i></span> MemoSpace</div>
+
+<div id="onboarding" data-complete-url="{{ url_for('onboarding.complete') }}"
+     data-validate-url="{{ url_for('onboarding.validate_step') }}" data-recover-url="{{ url_for('onboarding.recover') }}">
+
+  <section class="ms-frame" data-frame="1" role="dialog" aria-modal="true" aria-labelledby="f1Title">
+    <div class="ms-dots"><i class="on"></i><i></i><i></i></div>
+    <div class="ms-icon-bubble mx-auto mb-3"><i data-lucide="user-round"></i></div>
+    <h1 class="ms-frame-title" id="f1Title">Siapa nama kamu?</h1>
+    <p class="text-muted">Kami ingin menyapamu dengan benar. Tidak perlu email atau password.</p>
+    <div class="text-start mb-3">
+      <label for="obName" class="visually-hidden">Nama</label>
+      <input type="text" id="obName" class="form-control ms-input ms-input-lg" maxlength="100" placeholder="Nama panggilanmu" autocomplete="given-name">
+      <div class="ms-field-error" id="obNameError" role="alert"></div>
+    </div>
+    <button type="button" class="btn btn-ms btn-ms-lg w-100" id="obNext1">Next <i data-lucide="arrow-right"></i></button>
+    <button type="button" class="ms-link ms-link-muted mt-3" id="obOpenRecover">Sudah punya kode pemulihan?</button>
+  </section>
+
+  <section class="ms-frame" data-frame="2" role="dialog" aria-modal="true" aria-labelledby="f2Title" hidden>
+    <div class="ms-dots"><i></i><i class="on"></i><i></i></div>
+    <div class="ms-icon-bubble mx-auto mb-3"><i data-lucide="calendar-heart"></i></div>
+    <h1 class="ms-frame-title" id="f2Title">Kapan kamu lahir?</h1>
+    <p class="text-muted">Opsional — hanya untuk melengkapi profilmu. Kamu boleh melewatinya.</p>
+    <div class="text-start mb-3">
+      <label for="obBirth" class="visually-hidden">Tanggal lahir</label>
+      <input type="date" id="obBirth" class="form-control ms-input ms-input-lg" min="1900-01-01">
+      <div class="ms-field-error" id="obBirthError" role="alert"></div>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-ms-ghost btn-ms-lg" id="obBack2"><i data-lucide="arrow-left"></i> Back</button>
+      <button type="button" class="btn btn-ms-ghost btn-ms-lg flex-fill" id="obSkip">Lewati</button>
+      <button type="button" class="btn btn-ms btn-ms-lg flex-fill" id="obNext2">Next</button>
+    </div>
+    <div class="ms-field-error mt-2" id="obSubmitError" role="alert"></div>
+  </section>
+
+  <section class="ms-frame" data-frame="recover" role="dialog" aria-modal="true" aria-labelledby="frTitle" hidden>
+    <div class="ms-icon-bubble mx-auto mb-3"><i data-lucide="key-round"></i></div>
+    <h1 class="ms-frame-title" id="frTitle">Pulihkan ruang catatanmu</h1>
+    <p class="text-muted">Masukkan kode pemulihan 16 karakter yang kamu simpan saat pertama kali bergabung.</p>
+    <div class="text-start mb-3">
+      <label for="obCode" class="visually-hidden">Kode pemulihan</label>
+      <input type="text" id="obCode" class="form-control ms-input ms-input-lg ms-mono" maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+      <div class="ms-field-error" id="obCodeError" role="alert"></div>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-ms-ghost btn-ms-lg" id="obBackRecover"><i data-lucide="arrow-left"></i> Back</button>
+      <button type="button" class="btn btn-ms btn-ms-lg flex-fill" id="obRecover">Pulihkan</button>
+    </div>
+  </section>
+</div>
+{% endblock %}

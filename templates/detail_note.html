@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ note.title }}{% endblock %}
+{% block content %}
+<article class="ms-narrow">
+  <a href="{{ url_for('notes.index') }}" class="ms-back"><i data-lucide="arrow-left"></i> Kembali</a>
+
+  <header class="ms-detail-head">
+    <div class="d-flex justify-content-between align-items-start gap-3">
+      <h1 class="ms-detail-title">{{ note.title }}</h1>
+      <button type="button" class="ms-fav ms-fav-lg {{ 'active' if note.is_favorite }}"
+              data-fav-url="{{ url_for('notes.favorite', note_id=note.id) }}"
+              aria-pressed="{{ 'true' if note.is_favorite else 'false' }}" aria-label="Tandai favorit">
+        <i data-lucide="star"></i>
+      </button>
+    </div>
+    {% if note.category %}<span class="ms-tag mb-2 d-inline-block">{{ note.category.name }}</span>{% endif %}
+
+    <dl class="ms-detail-meta">
+      <div><dt><i data-lucide="calendar-plus"></i> Dibuat</dt><dd>{{ note.created_at|tgl }} · {{ note.created_at|jam }}</dd></div>
+      <div><dt><i data-lucide="calendar-check"></i> Terakhir diedit</dt><dd>{{ note.updated_at|tgl }} · {{ note.updated_at|jam }}</dd></div>
+    </dl>
+
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{{ url_for('notes.edit', note_id=note.id) }}" class="btn btn-ms"><i data-lucide="pencil"></i> Edit</a>
+      <div class="dropdown">
+        <button class="btn btn-ms-ghost" data-bs-toggle="dropdown" aria-expanded="false"><i data-lucide="download"></i> Ekspor</button>
+        <ul class="dropdown-menu ms-menu">
+          <li><a class="dropdown-item" href="{{ url_for('notes.export_one', note_id=note.id, fmt='pdf') }}"><i data-lucide="file-text"></i> PDF</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('notes.export_one', note_id=note.id, fmt='txt') }}"><i data-lucide="file-type"></i> Teks (.txt)</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('notes.export_one', note_id=note.id, fmt='md') }}"><i data-lucide="hash"></i> Markdown (.md)</a></li>
+        </ul>
+      </div>
+      <button type="button" class="btn btn-ms-ghost ms-danger-text"
+              data-delete-url="{{ url_for('notes.delete', note_id=note.id) }}" data-delete-title="{{ note.title }}">
+        <i data-lucide="trash-2"></i> Hapus
+      </button>
+    </div>
+  </header>
+
+  <div class="ms-reader">{% if note.content %}{{ note.content }}{% else %}<span class="text-muted">Catatan ini belum memiliki isi.</span>{% endif %}</div>
+</article>
+{% endblock %}
+
+{% block modals %}{% include "_delete_modal.html" %}{% endblock %}

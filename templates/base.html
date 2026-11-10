@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f8fb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f1218">
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <title>{% block title %}MemoSpace{% endblock %} · MemoSpace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+{% block nav %}
+{% if current_user %}
+<nav class="ms-nav">
+  <div class="container ms-container d-flex align-items-center justify-content-between">
+    <a href="{{ url_for('notes.index') }}" class="ms-logo" aria-label="MemoSpace beranda">
+      <span class="ms-logo-mark"><i data-lucide="notebook-pen"></i></span>
+      <span>MemoSpace</span>
+    </a>
+    <div class="d-flex align-items-center gap-2">
+      <a href="{{ url_for('notes.create') }}" class="btn btn-ms d-none d-sm-inline-flex">
+        <i data-lucide="plus"></i> Catatan Baru
+      </a>
+      <div class="dropdown">
+        <button class="ms-avatar" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu profil">
+          {{ current_user.name[:1]|upper }}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end ms-menu">
+          <li class="ms-menu-head">
+            <strong>{{ current_user.name }}</strong>
+            <small>Ruang catatan pribadi</small>
+          </li>
+          <li><a class="dropdown-item" href="{{ url_for('profile.settings') }}"><i data-lucide="user-round"></i> Profil &amp; pengaturan</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('notes.trash') }}"><i data-lucide="trash-2"></i> Baru Dihapus</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li class="ms-menu-label">Ekspor semua catatan</li>
+          <li><a class="dropdown-item" href="{{ url_for('notes.export_all', fmt='pdf') }}"><i data-lucide="file-text"></i> PDF</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('notes.export_all', fmt='txt') }}"><i data-lucide="file-type"></i> Teks (.txt)</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('notes.export_all', fmt='md') }}"><i data-lucide="hash"></i> Markdown (.md)</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endif %}
+{% endblock %}
+
+<main class="{% block main_class %}container ms-container ms-main{% endblock %}">
+  {% block content %}{% endblock %}
+</main>
+
+{% block modals %}{% endblock %}
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastStack">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="toast ms-toast ms-toast-{{ category }}" role="status" data-flash>
+        <div class="toast-body">
+          <i data-lucide="{{ {'success':'circle-check','error':'circle-alert','info':'info'}.get(category,'info') }}"></i>
+          <span>{{ message }}</span>
+        </div>
+      </div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Edit Catatan{% endblock %}
+{% block content %}
+<div class="ms-narrow">
+  <a href="{{ url_for('notes.detail', note_id=note.id) }}" class="ms-back"><i data-lucide="arrow-left"></i> Kembali</a>
+  <h1 class="ms-title mb-1">Edit catatan</h1>
+  <p class="text-muted small mb-4">Dibuat {{ note.created_at|tgl }}, {{ note.created_at|jam }}. Perubahan disimpan otomatis.</p>
+  {% set action = url_for('notes.edit', note_id=note.id) %}
+  {% set cancel_url = url_for('notes.detail', note_id=note.id) %}
+  {% set submit_label = 'Simpan Perubahan' %}
+  {% set autosave_url = url_for('notes.autosave', note_id=note.id) %}
+  {% set draft_key = none %}
+  {% include "_note_form.html" %}
+</div>
+{% endblock %}

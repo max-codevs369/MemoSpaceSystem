@@ -1,0 +1,69 @@
+<div class="ms-count">
+  {% if total_notes == 0 %}
+    <span>0 catatan</span>
+  {% elif f.is_active %}
+    <span><strong>{{ pagination.total }}</strong> hasil dari {{ total_notes }} catatan</span>
+    <button type="button" class="ms-link" id="clearAll">Hapus semua filter</button>
+  {% else %}
+    <span><strong>{{ total_notes }}</strong> catatan</span>
+  {% endif %}
+</div>
+
+{% if total_notes == 0 %}
+  <div class="ms-empty">
+    <div class="ms-icon-bubble mx-auto mb-3"><i data-lucide="notebook-pen"></i></div>
+    <h2 class="h5 fw-semibold">Belum ada catatan. Yuk, buat catatan pertamamu!</h2>
+    <p class="text-muted">Tulis ide, daftar belanja, atau cerita harianmu — semuanya aman di ruang pribadimu.</p>
+    <a href="{{ url_for('notes.create') }}" class="btn btn-ms btn-ms-lg"><i data-lucide="plus"></i> Buat Catatan</a>
+  </div>
+{% elif not notes %}
+  <div class="ms-empty">
+    <div class="ms-icon-bubble mx-auto mb-3"><i data-lucide="search-x"></i></div>
+    <h2 class="h5 fw-semibold">Tidak ada catatan yang cocok</h2>
+    <p class="text-muted">Coba kata kunci lain, atau ubah filter tanggal dan kategori.</p>
+    <button type="button" class="btn btn-ms-ghost" id="clearAllEmpty">Hapus semua filter</button>
+  </div>
+{% else %}
+  <div class="ms-grid">
+    {% for n in notes %}
+      <article class="ms-card">
+        <div class="ms-card-top">
+          {% if n.category %}<span class="ms-tag">{{ n.category.name }}</span>{% else %}<span></span>{% endif %}
+          <button type="button" class="ms-fav {{ 'active' if n.is_favorite }}"
+                  data-fav-url="{{ url_for('notes.favorite', note_id=n.id) }}"
+                  aria-pressed="{{ 'true' if n.is_favorite else 'false' }}" aria-label="Tandai favorit">
+            <i data-lucide="star"></i>
+          </button>
+        </div>
+        <h3 class="ms-card-title"><a href="{{ url_for('notes.detail', note_id=n.id) }}">{{ n.title }}</a></h3>
+        <p class="ms-card-snippet">{{ (n.content or '')|snippet(150) or 'Tanpa isi.' }}</p>
+        <div class="ms-card-foot">
+          <div class="ms-meta">
+            <span><i data-lucide="calendar"></i> {{ n.created_at|tgl_pendek }}</span>
+            <span><i data-lucide="clock"></i> {{ n.created_at|jam }}</span>
+          </div>
+          <div class="ms-actions">
+            <a class="ms-icon-btn" href="{{ url_for('notes.detail', note_id=n.id) }}" title="Detail" aria-label="Lihat detail {{ n.title }}"><i data-lucide="eye"></i></a>
+            <a class="ms-icon-btn" href="{{ url_for('notes.edit', note_id=n.id) }}" title="Edit" aria-label="Edit {{ n.title }}"><i data-lucide="pencil"></i></a>
+            <button type="button" class="ms-icon-btn ms-icon-btn-danger" title="Hapus" aria-label="Hapus {{ n.title }}"
+                    data-delete-url="{{ url_for('notes.delete', note_id=n.id) }}" data-delete-title="{{ n.title }}">
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  {% if pagination.pages > 1 %}
+    <nav class="ms-pager" aria-label="Halaman">
+      {% if pagination.has_prev %}
+        <a class="ms-chip" href="{{ url_for('notes.index', page=pagination.prev_num, **query_args) }}"><i data-lucide="chevron-left"></i> Sebelumnya</a>
+      {% endif %}
+      <span class="text-muted small">Halaman {{ pagination.page }} dari {{ pagination.pages }}</span>
+      {% if pagination.has_next %}
+        <a class="ms-chip" href="{{ url_for('notes.index', page=pagination.next_num, **query_args) }}">Berikutnya <i data-lucide="chevron-right"></i></a>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% endif %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Profil{% endblock %}
+{% block content %}
+<div class="ms-narrow">
+  <a href="{{ url_for('notes.index') }}" class="ms-back"><i data-lucide="arrow-left"></i> Kembali</a>
+  <h1 class="ms-title mb-4">Profil &amp; pengaturan</h1>
+
+  <section class="ms-panel">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <div class="ms-avatar ms-avatar-lg">{{ current_user.name[:1]|upper }}</div>
+      <div>
+        <div class="fw-semibold">{{ current_user.name }}</div>
+        <div class="text-muted small">Bergabung {{ member_since }} · {{ total_notes }} catatan</div>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('profile.settings') }}" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-3">
+        <label class="form-label small text-muted" for="pName">Nama</label>
+        <input id="pName" name="name" maxlength="100" required class="form-control ms-input {{ 'is-invalid' if errors.name }}" value="{{ request.form.get('name', current_user.name) }}">
+        <div class="ms-field-error">{{ errors.name or '' }}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label small text-muted" for="pBirth">Tanggal lahir <span class="opacity-75">(opsional)</span></label>
+        <input id="pBirth" type="date" name="birth_date" max="{{ now.date() }}" class="form-control ms-input {{ 'is-invalid' if errors.birth_date }}" value="{{ request.form.get('birth_date', current_user.birth_date or '') }}">
+        <div class="ms-field-error">{{ errors.birth_date or '' }}</div>
+      </div>
+      <button class="btn btn-ms" type="submit">Simpan profil</button>
+    </form>
+  </section>
+
+  <section class="ms-panel">
+    <h2 class="h6 fw-semibold"><i data-lucide="key-round"></i> Kode pemulihan</h2>
+    <p class="text-muted small">MemoSpace tidak memakai login. Jika data browser terhapus atau kamu pindah perangkat, kode ini satu-satunya cara membuka kembali catatanmu. Simpan di tempat aman dan jangan bagikan.</p>
+    {% if recovery_code %}
+      <div class="ms-code-box mb-3">
+        <code id="recoveryCode">{{ recovery_code }}</code>
+        <button type="button" class="btn btn-ms-ghost btn-sm" data-copy="#recoveryCode"><i data-lucide="copy"></i> Salin</button>
+      </div>
+    {% endif %}
+    <form method="post" action="{{ url_for('profile.regenerate') }}" data-confirm="Buat kode pemulihan baru? Kode lama langsung tidak berlaku.">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-ms-ghost" type="submit"><i data-lucide="refresh-cw"></i> Buat kode baru</button>
+    </form>
+  </section>
+
+  <section class="ms-panel">
+    <h2 class="h6 fw-semibold"><i data-lucide="log-out"></i> Perangkat ini</h2>
+    <p class="text-muted small">Keluar dari perangkat ini (misalnya komputer umum). Catatanmu tetap tersimpan dan bisa dibuka lagi dengan kode pemulihan.</p>
+    <form method="post" action="{{ url_for('profile.sign_out') }}" data-confirm="Keluar dari perangkat ini? Pastikan kamu sudah menyimpan kode pemulihan.">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-ms-ghost" type="submit">Keluar dari perangkat ini</button>
+    </form>
+  </section>
+
+  <section class="ms-panel ms-panel-danger">
+    <h2 class="h6 fw-semibold ms-danger-text"><i data-lucide="triangle-alert"></i> Hapus semua data</h2>
+    <p class="text-muted small">Menghapus profil beserta seluruh catatan dan kategori secara permanen. Tidak bisa dibatalkan.</p>
+    <form method="post" action="{{ url_for('profile.delete_account') }}" class="d-flex gap-2 flex-wrap">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input class="form-control ms-input w-auto flex-grow-1" name="confirm" placeholder="Ketik HAPUS untuk konfirmasi" autocomplete="off" aria-label="Konfirmasi hapus">
+      <button class="btn btn-ms-danger" type="submit">Hapus semuanya</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

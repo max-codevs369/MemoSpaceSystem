@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Beranda{% endblock %}
+
+{% block content %}
+{% set hour = now.hour %}
+{% set salam = 'Selamat pagi' if hour < 11 else ('Selamat siang' if hour < 15 else ('Selamat sore' if hour < 18 else 'Selamat malam')) %}
+
+<section class="ms-hero">
+  <div>
+    <p class="ms-eyebrow"><i data-lucide="calendar-days"></i> {{ today }}</p>
+    <h1 class="ms-title">{{ salam }}, {{ current_user.name }}</h1>
+    <p class="text-muted mb-0">Semua ide dan ceritamu tersimpan rapi di sini.</p>
+  </div>
+  <a href="{{ url_for('notes.create') }}" class="btn btn-ms btn-ms-lg d-sm-none"><i data-lucide="plus"></i> Catatan Baru</a>
+</section>
+
+<form id="filterForm" method="get" action="{{ url_for('notes.index') }}" autocomplete="off">
+  <div class="ms-search-row">
+    <div class="ms-search">
+      <i data-lucide="search"></i>
+      <input type="search" name="q" id="searchInput" value="{{ f.q }}" maxlength="200"
+             placeholder="Cari judul atau isi catatan…" aria-label="Cari catatan">
+    </div>
+
+    <div class="dropdown">
+      <button type="button" class="ms-filter-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+              aria-expanded="false" aria-label="Filter tanggal dan waktu">
+        <i data-lucide="sliders-horizontal"></i>
+        {% if f.date_filter_count %}<span class="ms-badge-dot">{{ f.date_filter_count }}</span>{% endif %}
+      </button>
+      <div class="dropdown-menu dropdown-menu-end ms-filter-panel p-3" id="filterPanel">
+        <h2 class="h6 fw-semibold mb-3">Filter tanggal &amp; waktu</h2>
+
+        {% set mode = 'range' if (f.start or f.end) and not f.date else 'single' %}
+        <div class="ms-segment mb-3" role="tablist">
+          <input type="radio" class="btn-check" name="date_mode" id="modeSingle" value="single" {{ 'checked' if mode == 'single' }}>
+          <label for="modeSingle">Tanggal tertentu</label>
+          <input type="radio" class="btn-check" name="date_mode" id="modeRange" value="range" {{ 'checked' if mode == 'range' }}>
+          <label for="modeRange">Rentang tanggal</label>
+        </div>
+
+        <div id="groupSingle" class="mb-3">
+          <label class="form-label small text-muted" for="fDate">Tanggal</label>
+          <input type="date" class="form-control ms-input" id="fDate" name="date" value="{{ f.date or '' }}">
+        </div>
+        <div id="groupRange" class="row g-2 mb-3">
+          <div class="col-6">
+            <label class="form-label small text-muted" for="fStart">Mulai</label>
+            <input type="date" class="form-control ms-input" id="fStart" name="start" value="{{ f.start or '' }}">
+          </div>
+          <div class="col-6">
+            <label class="form-label small text-muted" for="fEnd">Selesai</label>
+            <input type="date" class="form-control ms-input" id="fEnd" name="end" value="{{ f.end or '' }}">
+          </div>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-12"><span class="form-label small text-muted d-block mb-0">Jam dibuat <span class="opacity-75">(opsional)</span></span></div>
+          <div class="col-6">
+            <input type="time" class="form-control ms-input" id="fTimeFrom" name="time_from" value="{{ f.time_from }}" aria-label="Dari jam">
+          </div>
+          <div class="col-6">
+            <input type="time" class="form-control ms-input" id="fTimeTo" name="time_to" value="{{ f.time_to }}" aria-label="Sampai jam">
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-ms-ghost flex-fill" id="filterReset">Reset</button>
+          <button type="submit" class="btn btn-ms flex-fill">Terapkan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ms-toolbar">
+    <div class="ms-chips" role="group" aria-label="Kategori">
+      <a class="ms-chip {{ 'active' if not f.category_id }}" href="#" data-category="">Semua</a>
+      {% for c in categories %}
+        <a class="ms-chip {{ 'active' if f.category_id == c.id }}" href="#" data-category="{{ c.id }}">{{ c.name }}</a>
+      {% endfor %}
+      <button type="button" class="ms-chip ms-chip-add" data-bs-toggle="modal" data-bs-target="#categoryModal">
+        <i data-lucide="tag"></i> Kelola kategori
+      </button>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <input type="hidden" name="category" id="categoryInput" value="{{ f.category_id or '' }}">
+      <input type="checkbox" class="btn-check" id="favToggle" name="fav" value="1" {{ 'checked' if f.favorite }}>
+      <label class="ms-chip ms-chip-fav" for="favToggle"><i data-lucide="star"></i> Favorit</label>
+      <select class="form-select ms-select" name="sort" id="sortSelect" aria-label="Urutkan">
+        {% for key, label in sorts.items() %}
+          <option value="{{ key }}" {{ 'selected' if f.sort == key }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</form>
+
+<div id="notesResults" aria-live="polite">
+  {% include "_notes_results.html" %}
+</div>
+{% endblock %}
+
+{% block modals %}
+{% include "_delete_modal.html" %}
+
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content ms-modal-content">
+      <div class="modal-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <h2 class="h5 fw-semibold mb-0" id="categoryModalTitle">Kategori</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <form method="post" action="{{ url_for('categories.create') }}" class="d-flex gap-2 mb-3">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="text" name="name" class="form-control ms-input" maxlength="50" placeholder="Nama kategori baru" required>
+          <button class="btn btn-ms" type="submit">Tambah</button>
+        </form>
+        {% if categories %}
+          <ul class="ms-cat-list">
+            {% for c in categories %}
+              <li>
+                <span><i data-lucide="tag"></i> {{ c.name }}</span>
+                <form method="post" action="{{ url_for('categories.delete', category_id=c.id) }}" data-confirm="Hapus kategori “{{ c.name }}”? Catatan di dalamnya tetap aman.">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="ms-icon-btn ms-icon-btn-danger" type="submit" aria-label="Hapus kategori {{ c.name }}"><i data-lucide="x"></i></button>
+                </form>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted small mb-0">Belum ada kategori. Buat satu untuk mengelompokkan catatanmu.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
